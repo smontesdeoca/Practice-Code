@@ -1,0 +1,131 @@
+// list your variables
+ArrayList<GBall> balls = new ArrayList<GBall>();
+PVector loc4, vel4, acc4;
+PVector loc2x, vel2x, acc2x;
+int sz5 = 70;
+int sz6 = 200;
+int max = 200;
+
+void setup() {
+  size(displayWidth, displayHeight); // set your size 
+  colorMode(HSB, 360, 100, 100, 100); // we want random colors so colormode is used
+loc4 = new PVector(width/2, height/2);
+  vel4 = PVector.random2D();    
+  acc4 = new PVector(0, 0);
+  loc2x = new PVector(width*.25, height*.25);
+  vel2x = PVector.random2D();
+  acc2x = new PVector(0, 0);
+}
+
+void draw() {
+strokeWeight(10); // give the balls an outer lining 
+  balls.add(new GBall(mouseX, mouseY, random(20, 90)));
+  for (int i = 0; i < balls.size (); i ++) {
+    GBall b = balls.get(i);
+    b.display();
+    b.move();
+      fill(frameCount%360, 100, 100);
+  stroke(frameCount%360, 100, 50);
+  }
+  // set if statements to allow both independent balls to bounce off each other 
+  if (balls.size() > max) {
+    balls.remove(0);
+  }
+   vel4.add(acc4);
+  loc4.add(vel4);
+  vel2x.add(acc2x);
+  loc2x.add(vel2x);
+// use if statments to make independent balls bounce off the walls
+  
+  if (loc4.dist(loc2x) < sz5/2 + sz6/2) { 
+    if (loc4.x < loc2x.x) {    
+      vel4.x = -abs(vel4.x);
+      vel2x.x = abs(vel2x.x);
+    } else {
+      vel4.x = abs(vel4.x);
+      vel2x.x = -abs(vel2x.x);
+    }
+    if (loc4.y < loc2x.y) {
+      vel4.y = -abs(vel4.y);
+      vel2x.y = abs(vel2x.y);
+    } else {
+      vel4.y = abs(vel4.y);
+      vel2x.y = -abs(vel2x.y);
+    }
+  }
+
+
+  // draw both independent balls
+  ellipse(loc4.x, loc4.y, sz5, sz5);
+  ellipse(loc2x.x, loc2x.y, sz6, sz6);
+
+  // allow the balls to move freely 
+  if (loc4.x + sz5/2 > width || loc4.x - sz5/2 < 0) {
+    vel4.x *= -1.05;
+  }
+  if (loc4.y + sz5/2 > height || loc4.y - sz5/2 < 0) {
+    vel4.y *= -1.05;
+  }
+  if (loc2x.x + sz6/2 > width || loc2x.x - sz6/2 < 0) {
+    vel2x.x *= -1.05;
+  }
+  if (loc2x.y + sz6/2 > height || loc2x.y - sz6/2 < 0) {
+    vel2x.y *= -1.05;
+  }
+//  if(mouseX> width/12){
+  // background( 250,10,240);
+  //}
+}
+// when prssed one of the balls will teleport to your mouse
+void mouseReleased() {
+  loc2x.set(mouseX, mouseY);
+}
+
+
+void mousePressed() {
+  balls.add(new GBall(mouseX, mouseY, random(20, 90)));
+  
+  
+  
+  
+  
+  //CLASS ON OTHER TAB
+  
+  class GBall {
+  PVector loc, velo, acc;
+  float sz, hue, sat, bright, alpha;
+
+
+  GBall(float tempx, float tempy, float tempsz) {
+    sz = tempsz;
+    velo = new PVector(random(5), 0);
+    acc = new PVector(0, .1);
+    loc = new PVector(tempx, tempy);
+    hue = random(360);
+    sat = 40;
+    bright = 100;
+    alpha = 100;
+  }
+
+ 
+
+  void display() {
+   
+    ellipse(loc.x, loc.y, sz, sz);
+   
+  }
+
+  void move() {
+    velo.add(acc);
+    loc.add(velo);
+  }
+
+ 
+
+  void collide(GBall other) {
+    if (loc.dist(other.loc) < sz/2 + other.sz/2) {
+      velo = PVector.sub(loc, other.loc);
+      velo.normalize();
+    }
+  }
+}
